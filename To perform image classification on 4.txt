@@ -1,0 +1,118 @@
+To perform image classification on the MNIST dataset using a Convolutional Neural Network (CNN) with a Fully Connected layer, follow these steps:
+
+1. **Import Libraries**:
+   First, import the necessary libraries: `numpy` for data handling, and `tensorflow` with Keras for building the model.
+
+   ```python
+   import numpy as np
+   import tensorflow as tf
+   from tensorflow.keras import layers, models, datasets
+   ```
+
+2. **Load and Preprocess the MNIST Dataset**:
+   Load the MNIST dataset, which contains images of handwritten digits (0-9). Normalize the pixel values to be between 0 and 1 and reshape the data to fit the model (adding a channel for grayscale images).
+
+   ```python
+   (train_images, train_labels), (test_images, test_labels) = datasets.mnist.load_data()
+   train_images, test_images = train_images / 255.0, test_images / 255.0
+   train_images = np.expand_dims(train_images, axis=-1)
+   test_images = np.expand_dims(test_images, axis=-1)
+   ```
+
+3. **Build the CNN Model**:
+   Create the CNN model with 3 convolutional layers, followed by pooling layers, and a fully connected layer at the end to classify the digits.
+
+   ```python
+   model = models.Sequential()
+   model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+   model.add(layers.MaxPooling2D((2, 2)))
+   model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+   model.add(layers.MaxPooling2D((2, 2)))
+   model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+   model.add(layers.Flatten())  # Flatten the 3D output to 1D
+   model.add(layers.Dense(64, activation='relu'))  # Fully connected layer
+   model.add(layers.Dense(10, activation='softmax'))  # 10 output classes
+   ```
+
+4. **Compile the Model**:
+   Compile the model with an optimizer (Adam), loss function (sparse categorical crossentropy), and accuracy as the evaluation metric.
+
+   ```python
+   model.compile(optimizer='adam',
+                 loss='sparse_categorical_crossentropy',
+                 metrics=['accuracy'])
+   ```
+
+5. **Train the Model**:
+   Train the model using the training data for 5 epochs and a batch size of 64. You can use a validation split to monitor the model’s performance during training.
+
+   ```python
+   model.fit(train_images, train_labels, epochs=5, batch_size=64, validation_split=0.1)
+   ```
+
+6. **Evaluate the Model**:
+   After training, evaluate the model’s performance on the test data to check the accuracy.
+
+   ```python
+   test_loss, test_accuracy = model.evaluate(test_images, test_labels)
+   print("Test accuracy:", test_accuracy)
+   ```
+
+7. **Make Predictions**:
+   You can use the trained model to predict the labels of new images. Here, predictions are made for the first 5 images in the test set.
+
+   ```python
+   predictions = model.predict(test_images[:5])
+   predicted_labels = np.argmax(predictions, axis=1)
+   print("Predicted labels:", predicted_labels)
+   print("True labels:", test_labels[:5])
+   ```
+
+### In summary:
+1. **Load and preprocess the dataset**: MNIST images are scaled and reshaped.
+2. **Build the CNN**: Convolutional layers capture features, and fully connected layers perform classification.
+3. **Train the model**: The model is trained using labeled data.
+4. **Evaluate and predict**: The model’s performance is checked, and predictions are made on new data.
+
+
+
+
+//code
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras import layers, models, datasets
+
+# Step 1: Load and preprocess the MNIST dataset
+(train_images, train_labels), (test_images, test_labels) = datasets.mnist.load_data()
+train_images, test_images = train_images / 255.0, test_images / 255.0  # Normalize pixel values
+train_images = np.expand_dims(train_images, axis=-1)  # Add channel dimension (grayscale)
+test_images = np.expand_dims(test_images, axis=-1)
+
+# Step 2: Build the CNN model
+model = models.Sequential()
+model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.Flatten())  # Flatten the 3D output to 1D
+model.add(layers.Dense(64, activation='relu'))  # Fully connected layer
+model.add(layers.Dense(10, activation='softmax'))  # 10 output classes
+
+# Step 3: Compile the model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Step 4: Train the model
+model.fit(train_images, train_labels, epochs=5, batch_size=64, validation_split=0.1)
+
+# Step 5: Evaluate the model on the test set
+test_loss, test_accuracy = model.evaluate(test_images, test_labels)
+print("Test accuracy:", test_accuracy)
+
+# Step 6: Make predictions on new data
+predictions = model.predict(test_images[:5])
+predicted_labels = np.argmax(predictions, axis=1)
+print("Predicted labels:", predicted_labels)
+print("True labels:", test_labels[:5])
